@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* @import "tailwindcss";
+
+body {
+  @apply font-sans text-gray-800 bg-gray-50;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold;
+}
+
+input, textarea, select {
+  @apply block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+}
+
+button {
+  @apply inline-flex items-center justify-center px-4 py-2 font-medium text-white transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply bg-primary-600 hover:bg-primary-700 focus:ring-primary-500;
+}
+
+.btn-secondary {
+  @apply bg-secondary-600 hover:bg-secondary-700 focus:ring-secondary-500;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-md overflow-hidden;
+}
+
+.gradient-bg {
+  @apply bg-gradient-to-br from-primary-600 to-secondary-700;
+}
+
+.section-heading {
+  @apply text-3xl font-bold text-center mb-10 text-gray-800;
+} */
