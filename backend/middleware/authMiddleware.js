@@ -3,6 +3,7 @@ import User from '../models/User.js';
 
 // Protect routes middleware
 export const protect = async (req, res, next) => {
+  console.log(`Auth middleware 'protect' hit for path: ${req.originalUrl}, method: ${req.method}`); // ADD THIS LOG
   try {
     let token;
     

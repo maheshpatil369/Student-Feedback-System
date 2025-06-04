@@ -2,9 +2,26 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import readline from 'readline';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import User from '../models/User.js'; // Adjust path as necessary
 
-dotenv.config({ path: '../.env' }); // Assuming .env is in the backend directory
+// Resolve the path to the .env file located in the parent directory (backend/)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, '../.env');
+
+const dotenvResult = dotenv.config({ path: envPath });
+
+if (dotenvResult.error) {
+  console.error('Error loading .env file:', dotenvResult.error);
+} else {
+  console.log('.env file loaded successfully from:', envPath);
+  if (dotenvResult.parsed) {
+    console.log('Variables loaded from .env:', Object.keys(dotenvResult.parsed).join(', '));
+  }
+}
+
 
 const rl = readline.createInterface({
   input: process.stdin,

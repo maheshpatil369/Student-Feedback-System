@@ -1,18 +1,35 @@
 import Feedback from '../models/Feedback.js';
 import User from '../models/User.js';
+// Removed WebSocket related imports: io, getAdminStatsData (if only used for websockets)
+// If getAdminStatsData is used elsewhere, ensure adminController still exports it and it's imported if needed by other functions in this file.
+// For now, assuming it was primarily for WebSocket updates.
 
 // Submit new feedback
 export const submitFeedback = async (req, res) => {
   try {
-    const { subject, rating, feedback } = req.body;
+    const { subject, rating, feedback } = req.body; // teacherName will be added later
     const userId = req.user.id;
-    
-    const newFeedback = await Feedback.create({
+    console.log(`Attempting to submit feedback for student: ${userId}, subject: ${subject}`); // Log input
+
+    const feedbackToSave = {
       student: userId,
       subject,
       rating,
       feedback
-    });
+      // teacher: teacherName // Will add this later
+    };
+    
+    const newFeedback = await Feedback.create(feedbackToSave);
+    
+    if (newFeedback) {
+      console.log('Feedback successfully saved to MongoDB with _id:', newFeedback._id);
+    } else {
+      // This case should ideally not happen if Feedback.create doesn't throw an error
+      // but resolves to something falsy. Mongoose typically throws or returns the document.
+      console.error('Feedback.create did not return a document and did not throw an error.');
+    }
+
+    // WebSocket emission logic removed
     
     res.status(201).json({
       success: true,

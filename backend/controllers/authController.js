@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+// Removed WebSocket related imports: io, getAdminStatsData (if only used for websockets)
+// If getAdminStatsData is used elsewhere by other functions in this file, ensure adminController still exports it.
 
 // Generate JWT Token
 const generateToken = (id, email, name, role) => {
@@ -31,7 +33,9 @@ export const signup = async (req, res) => {
     if (user) {
       // Generate token
       const token = generateToken(user._id, user.email, user.name, user.role);
-      
+
+      // WebSocket emission logic removed
+
       res.status(201).json({
         token,
         user: {
@@ -124,6 +128,55 @@ export const adminLogin = async (req, res) => {
   } catch (error) {
     console.error('Admin login error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Admin Signup
+export const adminSignup = async (req, res) => {
+  try {
+    const { name, username, password } = req.body;
+
+    if (!name || !username || !password) {
+      return res.status(400).json({ message: 'Name, username, and password are required' });
+    }
+
+    const email = `${username.toLowerCase()}@edufeedback.ai`;
+
+    // Check if admin already exists
+    const adminExists = await User.findOne({ email });
+    if (adminExists) {
+      return res.status(400).json({ message: 'Admin user with this username already exists' });
+    }
+
+    // Create admin user
+    const admin = await User.create({
+      name,
+      email,
+      password,
+      role: 'admin'
+    });
+
+    if (admin) {
+      // Generate token
+      const token = generateToken(admin._id, admin.email, admin.name, admin.role);
+
+      // WebSocket emission logic removed
+
+      res.status(201).json({
+        token,
+        user: {
+          id: admin._id,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role
+        }
+      });
+    } else {
+      res.status(400).json({ message: 'Invalid admin data' });
+    }
+  } catch (error) {
+    console.error('Admin signup error:', error);
+    res.status(500).json({ message: 'Server error during admin signup' });
   }
 };
 

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  LogOut, 
-  Users, 
-  Star, 
+import {
+  Sparkles,
+  LogOut,
+  Users,
+  Star,
   BookOpen,
   ArrowUp,
   ArrowDown,
@@ -16,6 +16,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+// Removed: import io from 'socket.io-client';
 
 import BarChart from '../components/BarChart';
 import DoughnutChart from '../components/DoughnutChart';
@@ -27,85 +28,73 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const AdminDashboardPage = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Set to true initially
   const [stats, setStats] = useState({
-    totalStudents: 1289,
-    totalFeedbacks: 458,
-    averageRating: 4.6,
-    activeSubjects: 18
+    totalStudents: 0,
+    totalAdmins: 0,
+    totalUsers: 0,
+    totalFeedbacks: 0,
+    averageRating: 0,
+    activeSubjects: 0
   });
   
   const [feedbackData, setFeedbackData] = useState([]);
-  
-  // Mock feedback data
-  const mockFeedbackData = [
-    { id: 1, student: 'Alex Johnson', subject: 'Physics', rating: 5, date: '2025-04-01', feedback: 'Excellent class, very engaging!' },
-    { id: 2, student: 'Sarah Miller', subject: 'Chemistry', rating: 4, date: '2025-04-01', feedback: 'Good content but labs could be improved.' },
-    { id: 3, student: 'David Chen', subject: 'Mathematics', rating: 5, date: '2025-03-31', feedback: 'Clear explanations of complex topics.' },
-    { id: 4, student: 'Emily Wilson', subject: 'Biology', rating: 3, date: '2025-03-30', feedback: 'More hands-on activities would be helpful.' },
-    { id: 5, student: 'Michael Brown', subject: 'Computer Science', rating: 5, date: '2025-03-29', feedback: 'Amazing programming challenges!' },
-    { id: 6, student: 'Jessica Lee', subject: 'English Literature', rating: 4, date: '2025-03-28', feedback: 'Loved the book selections this semester.' },
-    { id: 7, student: 'Chris Taylor', subject: 'Physics', rating: 2, date: '2025-03-28', feedback: 'Lectures moved too quickly for me to follow.' },
-    { id: 8, student: 'Amanda Garcia', subject: 'History', rating: 5, date: '2025-03-27', feedback: 'The virtual field trips were amazing!' },
-    { id: 9, student: 'Ryan Martinez', subject: 'Chemistry', rating: 4, date: '2025-03-26', feedback: 'Good course overall, but too much homework.' },
-    { id: 10, student: 'Olivia Smith', subject: 'Mathematics', rating: 3, date: '2025-03-25', feedback: 'Need more practice problems for exams.' }
-  ];
+  const [usersData, setUsersData] = useState([]); // New state for users
+  const [subjectRatingData, setSubjectRatingData] = useState(null); // State for subject ratings chart
+  const [ratingDistributionData, setRatingDistributionData] = useState(null); // State for rating distribution chart
   
   useEffect(() => {
-    // In a real app, we'd fetch data from the API
+    // Initial data fetch
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // For demo, we'll use mock data instead of actual API calls
-        // const statsResponse = await axios.get(`${API_URL}/admin/stats`);
-        // const feedbackResponse = await axios.get(`${API_URL}/admin/feedback`);
-        // setStats(statsResponse.data);
-        // setFeedbackData(feedbackResponse.data);
+        const [
+          statsResponse,
+          feedbackResponse,
+          usersResponse,
+          subjectRatingsResponse,
+          ratingDistributionResponse
+        ] = await Promise.all([
+          axios.get(`${API_URL}/admin/stats`),
+          axios.get(`${API_URL}/admin/feedback`),
+          axios.get(`${API_URL}/admin/users`),
+          axios.get(`${API_URL}/admin/subject-ratings`),
+          axios.get(`${API_URL}/admin/rating-distribution`)
+        ]);
         
-        // Using mock data
-        setFeedbackData(mockFeedbackData);
+        if (statsResponse.data.success) {
+          setStats(statsResponse.data.data);
+        }
+        if (feedbackResponse.data.success) {
+          console.log('Fetched feedbackData from API:', feedbackResponse.data.data);
+          // Client-side sort as a fallback/assurance
+          const sortedFeedback = [...feedbackResponse.data.data].sort((a, b) => new Date(b.date) - new Date(a.date));
+          setFeedbackData(sortedFeedback);
+        }
+        if (usersResponse.data.success) {
+          setUsersData(usersResponse.data.data);
+        }
+        if (subjectRatingsResponse.data.success) {
+          setSubjectRatingData(subjectRatingsResponse.data.data);
+        }
+        if (ratingDistributionResponse.data.success) {
+          setRatingDistributionData(ratingDistributionResponse.data.data);
+        }
+        
       } catch (error) {
         console.error('Error fetching admin data:', error);
+        // Optionally set an error state here to display to the user
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchData();
-  }, []);
-  
-  // Chart data
-  const subjectRatingData = {
-    labels: ['Physics', 'Chemistry', 'Biology', 'Mathematics', 'Computer Science', 'English', 'History'],
-    datasets: [
-      {
-        label: 'Average Rating',
-        data: [4.2, 3.8, 4.5, 3.9, 4.7, 4.1, 4.4],
-        backgroundColor: 'rgba(123, 58, 237, 0.6)',
-        borderColor: 'rgba(123, 58, 237, 1)',
-        borderWidth: 1
-      }
-    ]
-  };
-  
-  const ratingDistributionData = {
-    labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
-    datasets: [
-      {
-        label: 'Ratings',
-        data: [210, 150, 70, 20, 8],
-        backgroundColor: [
-          'rgba(72, 187, 120, 0.8)',
-          'rgba(66, 153, 225, 0.8)',
-          'rgba(237, 137, 54, 0.8)',
-          'rgba(237, 100, 166, 0.8)',
-          'rgba(229, 62, 62, 0.8)'
-        ],
-        borderWidth: 1
-      }
-    ]
-  };
-  
+
+    // WebSocket connection and event listener logic removed
+
+  }, []); // Empty dependency array ensures this runs once on mount
+    
   // Data table columns
   const feedbackColumns = [
     { key: 'id', label: 'ID' },
@@ -127,6 +116,14 @@ const AdminDashboardPage = () => {
     },
     { key: 'date', label: 'Date' },
     { key: 'feedback', label: 'Feedback' }
+  ];
+
+  const userColumns = [
+    { key: 'id', label: 'ID' },
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'role', label: 'Role' },
+    { key: 'joinedDate', label: 'Joined Date' }
   ];
   
   // Animation variants
@@ -218,6 +215,16 @@ const AdminDashboardPage = () => {
               >
                 Analytics
               </button>
+              <button
+                className={`pb-3 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'users'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+                onClick={() => setActiveTab('users')}
+              >
+                User Management
+              </button>
             </nav>
           </div>
           
@@ -233,39 +240,40 @@ const AdminDashboardPage = () => {
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                   <StatCard 
                     icon={<Users className="h-6 w-6 text-white" />}
-                    title="Total Students"
-                    value={stats.totalStudents}
+                    title="Total Users"
+                    value={stats.totalUsers || 0}
                     bgColor="bg-blue-500"
                   />
-                  <StatCard 
+                  <StatCard
+                    icon={<Users className="h-6 w-6 text-white" />}
+                    title="Students"
+                    value={stats.totalStudents || 0}
+                    bgColor="bg-indigo-500"
+                  />
+                  <StatCard
+                    icon={<Users className="h-6 w-6 text-white" />}
+                    title="Admins"
+                    value={stats.totalAdmins || 0}
+                    bgColor="bg-pink-500"
+                  />
+                  <StatCard
                     icon={<Star className="h-6 w-6 text-white" />}
                     title="Feedback Submissions"
-                    value={stats.totalFeedbacks}
+                    value={stats.totalFeedbacks || 0}
                     bgColor="bg-yellow-500"
                   />
-                  <StatCard 
-                    icon={<ArrowUp className="h-6 w-6 text-white" />}
-                    title="Average Rating"
-                    value={stats.averageRating}
-                    bgColor="bg-green-500"
-                  />
-                  <StatCard 
-                    icon={<BookOpen className="h-6 w-6 text-white" />}
-                    title="Active Subjects"
-                    value={stats.activeSubjects}
-                    bgColor="bg-purple-500"
-                  />
+                  {/* Removed AverageRating and ActiveSubjects for brevity, can be added back if needed */}
                 </div>
               </motion.div>
               
               <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Subject Ratings</h3>
-                  <BarChart data={subjectRatingData} />
+                  {subjectRatingData ? <BarChart data={subjectRatingData} /> : <p>Loading chart data...</p>}
                 </div>
                 <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Rating Distribution</h3>
-                  <DoughnutChart data={ratingDistributionData} />
+                  {ratingDistributionData ? <DoughnutChart data={ratingDistributionData} /> : <p>Loading chart data...</p>}
                 </div>
               </motion.div>
               
@@ -371,13 +379,13 @@ const AdminDashboardPage = () => {
                 <div className="grid grid-cols-1 gap-6">
                   <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Subject Performance</h3>
-                    <BarChart data={subjectRatingData} />
+                    {subjectRatingData ? <BarChart data={subjectRatingData} /> : <p>Loading chart data...</p>}
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-white p-6 rounded-lg shadow-sm">
                       <h3 className="text-lg font-medium text-gray-900 mb-4">Rating Distribution</h3>
-                      <DoughnutChart data={ratingDistributionData} />
+                      {ratingDistributionData ? <DoughnutChart data={ratingDistributionData} /> : <p>Loading chart data...</p>}
                     </div>
                     
                     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -425,6 +433,31 @@ const AdminDashboardPage = () => {
                     </div>
                   </div>
                 </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* User Management Tab */}
+          {activeTab === 'users' && (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div variants={itemVariants} className="mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold text-gray-800">User Management</h2>
+                  {/* Add refresh/filter buttons if needed */}
+                </div>
+                {isLoading ? (
+                  <p>Loading users...</p>
+                ) : (
+                  <DataTable
+                    columns={userColumns}
+                    data={usersData}
+                    title="All Users"
+                  />
+                )}
               </motion.div>
             </motion.div>
           )}

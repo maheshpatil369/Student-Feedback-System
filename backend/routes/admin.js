@@ -1,9 +1,10 @@
 import express from 'express';
-import { 
-  getAllFeedback, 
-  getAdminStats, 
-  getSubjectRatings, 
-  getRatingDistribution 
+import {
+  getAllFeedback,
+  getAllUsers,
+  getAdminStats,
+  getSubjectRatings,
+  getRatingDistribution
 } from '../controllers/adminController.js';
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
@@ -15,6 +16,9 @@ router.use(adminOnly);
 
 // Get all feedback
 router.get('/feedback', getAllFeedback);
+
+// Get all users
+router.get('/users', getAllUsers);
 
 // Get admin dashboard stats
 router.get('/stats', getAdminStats);

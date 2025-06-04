@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+// Removed http and SocketIOServer imports
 import authRoutes from './routes/auth.js';
 import feedbackRoutes from './routes/feedback.js';
 import adminRoutes from './routes/admin.js';
@@ -40,7 +41,7 @@ app.get('/', (req, res) => {
 
 // Start server
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, () => { // app listens directly
     console.log(`Server running on port ${PORT}`);
   });
 });

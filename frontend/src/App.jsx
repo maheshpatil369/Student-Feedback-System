@@ -12,6 +12,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import AdminLoginPage from './pages/AdminLoginPage';
+import AdminSignupPage from './pages/AdminSignupPage'; // Import the new page
 import StudentPortalPage from './pages/StudentPortalPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -45,6 +46,7 @@ function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="signup" element={<SignupPage />} />
           <Route path="admin-login" element={<AdminLoginPage />} />
+          <Route path="admin-signup" element={<AdminSignupPage />} /> {/* Add route for admin signup */}
         </Route>
         
         {/* Protected routes */}

@@ -28,31 +28,67 @@ export const getAllFeedback = async (req, res) => {
   }
 };
 
-// Get admin dashboard stats
-export const getAdminStats = async (req, res) => {
+// Get all users
+export const getAllUsers = async (req, res) => {
   try {
-    // Total students
-    const totalStudents = await User.countDocuments({ role: 'user' });
+    const users = await User.find().select('name email role createdAt').sort({ createdAt: -1 });
     
-    // Total feedback submissions
-    const totalFeedbacks = await Feedback.countDocuments();
-    
-    // Average overall rating
-    const avgRating = await Feedback.aggregate([
-      { $group: { _id: null, average: { $avg: '$rating' } } }
-    ]);
-    
-    // Count unique subjects
-    const subjects = await Feedback.distinct('subject');
-    
+    const formattedUsers = users.map(user => ({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      joinedDate: user.createdAt.toISOString().split('T')[0]
+    }));
+
     res.json({
       success: true,
-      data: {
-        totalStudents,
-        totalFeedbacks,
-        averageRating: avgRating.length > 0 ? avgRating[0].average.toFixed(1) : 0,
-        activeSubjects: subjects.length
-      }
+      count: users.length,
+      data: formattedUsers
+    });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({ message: 'Server error getting users' });
+  }
+};
+
+// Helper function to get admin stats data
+export const getAdminStatsData = async () => {
+  // Total students (users with role 'user')
+  const totalStudents = await User.countDocuments({ role: 'user' });
+  // Total admins
+  const totalAdmins = await User.countDocuments({ role: 'admin' });
+  // Total users (all roles)
+  const totalUsers = await User.countDocuments();
+  
+  // Total feedback submissions
+  const totalFeedbacks = await Feedback.countDocuments();
+  
+  // Average overall rating
+  const avgRating = await Feedback.aggregate([
+    { $group: { _id: null, average: { $avg: '$rating' } } }
+  ]);
+  
+  // Count unique subjects
+  const subjects = await Feedback.distinct('subject');
+  
+  return {
+    totalStudents,
+    totalAdmins,
+    totalUsers,
+    totalFeedbacks,
+    averageRating: avgRating.length > 0 ? avgRating[0].average.toFixed(1) : 0,
+    activeSubjects: subjects.length
+  };
+};
+
+// Get admin dashboard stats - Route Handler
+export const getAdminStats = async (req, res) => {
+  try {
+    const statsData = await getAdminStatsData();
+    res.json({
+      success: true,
+      data: statsData
     });
   } catch (error) {
     console.error('Get admin stats error:', error);

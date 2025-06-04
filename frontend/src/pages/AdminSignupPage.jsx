@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, User, Lock, LogIn, Shield } from 'lucide-react';
+import { Sparkles, User, Lock, UserPlus, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'; 
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 
-const AdminLoginPage = () => {
+const AdminSignupPage = () => {
+  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { adminLogin } = useAuth();
+  const { adminSignup } = useAuth();
   const navigate = useNavigate();
 
   const containerVariants = {
@@ -38,10 +39,10 @@ const AdminLoginPage = () => {
     setIsLoading(true);
 
     try {
-      await adminLogin(username, password);
-      navigate('/admin-dashboard');
+      await adminSignup(name, username, password);
+      navigate('/admin-dashboard'); // Or to admin login page for confirmation
     } catch (error) {
-      setError(error.message || 'Failed to log in. Please check your credentials.');
+      setError(error.message || 'Failed to sign up. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -54,56 +55,25 @@ const AdminLoginPage = () => {
       animate="visible"
       variants={containerVariants}
     >
-
-{/* <motion.div className="sm:w-full sm:max-w-md mb-6" variants={itemVariants}> 
-  <div className="text-center mb-6">
-    <Link to="/" className="inline-flex items-center">
-      <motion.div whileHover={{ scale: 1.1, rotate: 10 }} whileTap={{ scale: 0.9 }}>
-        <Sparkles className="h-8 w-8 text-[#6958f0]" />
+      <motion.div className="sm:w-full sm:max-w-md mb-6" variants={itemVariants}>
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-flex items-center">
+            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} whileTap={{ scale: 0.9 }}>
+              <Sparkles className="h-8 w-8 text-[#6958f0]" />
+            </motion.div>
+          </Link>
+        </div>
+        <h2 className="text-center text-3xl font-extrabold">Admin Signup</h2>
+        <p className="mt-2 text-center text-sm text-black-200">
+          Create a new administrator account
+        </p>
+        <div className="mt-4 flex justify-center space-x-4 text-sm">
+          <motion.div className="flex items-center" whileHover={{ scale: 1.05 }}>
+            <Shield className="h-4 w-4 mr-1 text-[#6958f0]" />
+            <span>Secure Registration</span>
+          </motion.div>
+        </div>
       </motion.div>
-    </Link>
-  </div>
-  <h2 className="text-center text-3xl font-extrabold">Admin Login</h2>
-  <p className="mt-2 text-center text-sm text-black-200">
-    Access the feedback dashboard
-  </p>
-  <div className="mt-4 flex justify-center space-x-4 text-sm">
-    <motion.div className="flex items-center" whileHover={{ scale: 1.05 }}>
-      <Shield className="h-4 w-4 mr-1" />
-      <span>Secure Login</span>
-    </motion.div>
-    <motion.div className="flex items-center" whileHover={{ scale: 1.05 }}>
-      <Lock className="h-4 w-4 mr-1" />
-      <span>Protected Access</span>
-    </motion.div>
-  </div>
-</motion.div> */}
-
-<motion.div className="sm:w-full sm:max-w-md mb-6" variants={itemVariants}> 
-  <div className="text-center mb-6">
-    <Link to="/" className="inline-flex items-center">
-      <motion.div whileHover={{ scale: 1.1, rotate: 10 }} whileTap={{ scale: 0.9 }}>
-        <Sparkles className="h-8 w-8 text-[#6958f0]" />
-      </motion.div>
-    </Link>
-  </div>
-  <h2 className="text-center text-3xl font-extrabold">Admin Login</h2>
-  <p className="mt-2 text-center text-sm text-black-200">
-    Access the feedback dashboard
-  </p>
-  <div className="mt-4 flex justify-center space-x-4 text-sm">
-    <motion.div className="flex items-center" whileHover={{ scale: 1.05 }}>
-      <Shield className="h-4 w-4 mr-1 text-[#6958f0]" />
-      <span>Secure Login</span>
-    </motion.div>
-    <motion.div className="flex items-center" whileHover={{ scale: 1.05 }}>
-      <Lock className="h-4 w-4 mr-1 text-[#6958f0]" />
-      <span>Protected Access</span>
-    </motion.div>
-  </div>
-</motion.div>
-
-
 
       {error && (
         <motion.div
@@ -118,6 +88,24 @@ const AdminLoginPage = () => {
 
       <motion.form className="space-y-6" onSubmit={handleSubmit} variants={containerVariants}>
         <motion.div variants={itemVariants}>
+          <label htmlFor="name" className="block text-sm font-medium">
+            Full Name
+          </label>
+          <div className="mt-1 relative rounded-md shadow-sm">
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              className="bg-white bg-opacity-10 border-transparent focus:bg-white focus:bg-opacity-20 text-black placeholder--300 block w-full px-4 py-3 rounded-md"
+              placeholder="Enter full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
           <label htmlFor="username" className="block text-sm font-medium">
             Username
           </label>
@@ -128,11 +116,12 @@ const AdminLoginPage = () => {
               type="text"
               required
               className="bg-white bg-opacity-10 border-transparent focus:bg-white focus:bg-opacity-20 text-black placeholder--300 block w-full px-4 py-3 rounded-md"
-              placeholder="Enter username"
+              placeholder="Choose a username (e.g., myadmin)"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
+          <p className="mt-1 text-xs text-gray-500">Your admin email will be username@edufeedback.ai</p>
         </motion.div>
 
         <motion.div variants={itemVariants}>
@@ -143,15 +132,13 @@ const AdminLoginPage = () => {
             <input
               id="password"
               name="password"
-              type={showPassword ? 'text' : 'password'} // 👁️ Toggle visibility
+              type={showPassword ? 'text' : 'password'}
               required
               className="bg-white bg-opacity-10 border-transparent focus:bg-white focus:bg-opacity-20 text-black placeholder-black-300 block w-full px-4 py-3 rounded-md pr-10"
-              placeholder="Enter password"
+              placeholder="Create a strong password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-
-            {/* 👁️ Eye icon toggle */}
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
               onClick={() => setShowPassword(!showPassword)}
@@ -165,44 +152,29 @@ const AdminLoginPage = () => {
           </div>
         </motion.div>
 
-        {/* <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants}>
           <motion.button
             type="submit"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-700 bg-grey hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             disabled={isLoading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <LogIn className="h-5 w-5 mr-2" />
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            <UserPlus className="h-5 w-5 mr-2" />
+            {isLoading ? 'Creating Account...' : 'Create Admin Account'}
           </motion.button>
-        </motion.div> */}
-
-        <motion.div variants={itemVariants}>
-  <motion.button
-    type="submit"
-    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-    disabled={isLoading}
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-  >
-    <LogIn className="h-5 w-5 mr-2" />
-    {isLoading ? 'Signing in...' : 'Sign In'}
-  </motion.button>
-</motion.div>
-
+        </motion.div>
       </motion.form>
 
       <motion.div className="mt-6 text-center" variants={itemVariants}>
         <p className="text-sm">
-          Don't have an admin account?{' '}
-          <Link to="/admin-signup" className="font-medium text-primary-600 hover:text-primary-500">
-            Create one here
+          Already have an admin account?{' '}
+          <Link to="/admin-login" className="font-medium text-primary-600 hover:text-primary-500">
+            Login here
           </Link>
         </p>
       </motion.div>
-
-      <motion.div className="mt-4 text-center" variants={itemVariants}>
+       <motion.div className="mt-4 text-center" variants={itemVariants}>
         <Link
           to="/"
           className="text-sm font-medium text-black-200 hover:text-gray flex items-center justify-center"
@@ -214,4 +186,4 @@ const AdminLoginPage = () => {
   );
 };
 
-export default AdminLoginPage;
+export default AdminSignupPage;

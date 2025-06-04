@@ -20,12 +20,8 @@ const feedbackSchema = new mongoose.Schema({
   feedback: {
     type: String,
     required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
-});
+}, { timestamps: true }); // Add timestamps option here and remove manual createdAt
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
 

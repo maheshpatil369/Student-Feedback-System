@@ -89,6 +89,23 @@ export const AuthProvider = ({ children }) => {
       throw new Error(error.response?.data?.message || 'Signup failed');
     }
   };
+
+  const adminSignup = async (name, username, password) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/admin-signup`, { name, username, password });
+
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      setUser(user);
+      setIsAuthenticated(true);
+      return user;
+    } catch (error) {
+      console.error('Admin signup error:', error);
+      throw new Error(error.response?.data?.message || 'Admin signup failed');
+    }
+  };
   
   const logout = () => {
     localStorage.removeItem('token');
@@ -106,6 +123,7 @@ export const AuthProvider = ({ children }) => {
         login,
         adminLogin,
         signup,
+        adminSignup,
         logout
       }}
     >

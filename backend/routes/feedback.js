@@ -8,7 +8,13 @@ const router = express.Router();
 router.use(protect);
 
 // Submit feedback
-router.post('/', submitFeedback);
+router.post('/', (req, res, next) => {
+  console.log(`Feedback route POST '/' hit. Path: ${req.originalUrl}`); // ADD THIS LOG
+  // Now, explicitly call the original submitFeedback controller
+  // We need to make sure submitFeedback is imported if it's not already in scope
+  // It is imported at the top of this file.
+  submitFeedback(req, res, next);
+});
 
 // Get user feedback
 router.get('/', getUserFeedback);
